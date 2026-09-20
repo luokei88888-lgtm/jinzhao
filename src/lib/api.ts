@@ -35,6 +35,7 @@ export type AppConfig = {
   lat: number;
   lon: number;
   cityLocked: boolean;
+  theme: string;
 };
 
 export type HolidayDay = { date: string; name: string; isOffDay: boolean };
@@ -44,6 +45,7 @@ export const api = {
   setCity: (name: string, lat: number, lon: number) =>
     invoke<AppConfig>("set_city", { name, lat, lon }),
   locateByIp: () => invoke<AppConfig>("locate_by_ip"),
+  setThemeMode: (mode: string) => invoke<AppConfig>("set_theme_mode", { mode }),
   getForecast: (lat: number, lon: number) =>
     invoke<ForecastResponse>("get_forecast", { lat, lon }),
   getHolidays: (year: number) => invoke<HolidayDay[]>("get_holidays", { year }),

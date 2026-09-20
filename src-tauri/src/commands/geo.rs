@@ -1,8 +1,16 @@
-use crate::config::{AppConfig, DEFAULT_CITY_NAME, DEFAULT_LAT, DEFAULT_LON};
+use crate::config::{DEFAULT_CITY_NAME, DEFAULT_LAT, DEFAULT_LON};
 use crate::error::AppError;
 use serde::Deserialize;
 
 const GEO_API: &str = "https://ipinfo.io/json";
+
+/// 定位结果只描述城市，不含主题等其余配置，
+/// 由调用方合并进现有配置，避免定位把用户设置冲掉。
+pub struct LocatedCity {
+    pub city_name: String,
+    pub lat: f64,
+    pub lon: f64,
+}
 
 #[derive(Deserialize)]
 struct IpInfo {
@@ -22,7 +30,7 @@ pub fn parse_ipinfo(json: &str) -> Option<(String, f64, f64)> {
     Some((city, lat, lon))
 }
 
-pub async fn locate() -> Result<AppConfig, AppError> {
+pub async fn locate() -> Result<LocatedCity, AppError> {
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(8))
         .build()
@@ -39,17 +47,15 @@ pub async fn locate() -> Result<AppConfig, AppError> {
         .map_err(|e| AppError::new("geo_read_failed", &e.to_string()))?;
 
     match parse_ipinfo(&text) {
-        Some((city, lat, lon)) => Ok(AppConfig {
+        Some((city, lat, lon)) => Ok(LocatedCity {
             city_name: city,
             lat,
             lon,
-            city_locked: false,
         }),
-        None => Ok(AppConfig {
+        None => Ok(LocatedCity {
             city_name: DEFAULT_CITY_NAME.to_string(),
             lat: DEFAULT_LAT,
             lon: DEFAULT_LON,
-            city_locked: false,
         }),
     }
 }

@@ -50,6 +50,7 @@ CSS 变量定义在 `:root`，深色主题用 `[data-theme="dark"]` 覆盖同名
 | `--font-ui` / `--font-display` | 正文与农历标题字体 |
 | `--temp-weight` | 温度数字字重 |
 | `--card-topline` | 卡片顶部高光，浅色为空 |
+| `--bar-rule` | 日期栏下方分隔线，浅色为双线，深色为空 |
 
 取值：
 
@@ -75,6 +76,7 @@ CSS 变量定义在 `:root`，深色主题用 `[data-theme="dark"]` 覆盖同名
 | `--font-display` | `"Songti SC", Georgia, serif` | `system-ui, "Microsoft YaHei", sans-serif` |
 | `--temp-weight` | `600` | `300` |
 | `--card-topline` | `none` | `linear-gradient(90deg, transparent, rgba(78, 207, 184, 0.5), transparent)` |
+| `--bar-rule` | `3px double rgba(80, 60, 40, 0.35)` | `none` |
 
 ## 4. 数据与持久化
 

@@ -1,14 +1,70 @@
+/* 主题变量。默认值是「宣纸墨迹」，[data-theme="dark"] 覆盖成「深空夜色」。
+   组件样式只引用变量，不写具体色值，切换主题只改根节点的 data-theme。 */
 :root {
   color-scheme: light;
-  font-family: "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
+  --bg: #f7f2e8;
+  --bg-image: none;
+  --surface: #fffdf6;
+  --hover: rgba(80, 60, 40, 0.06);
+  --border: rgba(80, 60, 40, 0.16);
+  --text: #2b241c;
+  --muted: #8a7a64;
+  --yi: #2f5d50;
+  --ji: #b23a2f;
+  --accent: #2b241c;
+  --badge-text: #b23a2f;
+  --badge-border: rgba(178, 58, 47, 0.45);
+  --dress-bg: #f1ead9;
+  --dress-text: #57493a;
+  --radius-card: 2px;
+  --radius-chip: 2px;
+  --shadow-card: none;
+  --font-ui: "Songti SC", Georgia, serif;
+  --font-display: "Songti SC", Georgia, serif;
+  --temp-weight: 600;
+  --card-topline: none;
+  --bar-rule: 3px double rgba(80, 60, 40, 0.35);
+
   font-size: 14px;
-  color: #23262b;
-  background: #f4f5f7;
+  font-family: var(--font-ui);
+  color: var(--text);
+  background-color: var(--bg);
+  background-image: var(--bg-image);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d1520;
+  --bg-image: linear-gradient(160deg, #101b28, #0b131d 60%);
+  --surface: rgba(255, 255, 255, 0.045);
+  --hover: rgba(255, 255, 255, 0.07);
+  --border: rgba(255, 255, 255, 0.09);
+  --text: #e6ecf3;
+  --muted: #8b9aab;
+  --yi: #4ecfb8;
+  --ji: #e0796a;
+  --accent: #f2f6fa;
+  --badge-text: #d8b866;
+  --badge-border: rgba(216, 184, 102, 0.4);
+  --dress-bg: rgba(78, 207, 184, 0.12);
+  --dress-text: #a8e6db;
+  --radius-card: 12px;
+  --radius-chip: 999px;
+  --shadow-card: none;
+  --font-ui: system-ui, "Microsoft YaHei", sans-serif;
+  --font-display: system-ui, "Microsoft YaHei", sans-serif;
+  --temp-weight: 300;
+  --card-topline: linear-gradient(90deg, transparent, rgba(78, 207, 184, 0.5), transparent);
+  --bar-rule: none;
 }
 
 body {
   margin: 0;
-  background: #f4f5f7;
+  min-height: 100vh;
+  background-color: var(--bg);
+  background-image: var(--bg-image);
+  color: var(--text);
+  font-family: var(--font-ui);
 }
 
 .today {
@@ -19,27 +75,41 @@ body {
 }
 
 .card {
-  background: #ffffff;
-  border: 1px solid #e3e6ea;
-  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   padding: 14px;
 }
 
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 14%;
+  right: 14%;
+  height: 1px;
+  background: var(--card-topline);
+}
+
 .lunar-line {
+  font-family: var(--font-display);
   font-size: 17px;
   font-weight: 600;
 }
 
 .sub {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--muted);
   margin-top: 4px;
 }
 
 .festival,
 .holiday {
   font-size: 12px;
-  color: #b4553f;
+  color: var(--badge-text);
   margin-top: 6px;
 }
 
@@ -53,15 +123,15 @@ body {
 
 .tag-label {
   flex: 0 0 auto;
-  color: #6b7280;
+  color: var(--muted);
 }
 
 .tag-row.yi span:last-child {
-  color: #2f7a4f;
+  color: var(--yi);
 }
 
 .tag-row.ji span:last-child {
-  color: #b0442f;
+  color: var(--ji);
 }
 
 .temp-row {
@@ -73,18 +143,19 @@ body {
 
 .temp {
   font-size: 34px;
-  font-weight: 700;
+  font-weight: var(--temp-weight);
+  color: var(--accent);
 }
 
 .cond {
   font-size: 12px;
-  color: #4b5057;
+  color: var(--muted);
   line-height: 1.6;
 }
 
 .metrics {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--muted);
   margin-top: 8px;
 }
 
@@ -92,25 +163,26 @@ body {
   font-size: 14px;
   margin-top: 10px;
   padding: 8px 10px;
-  background: #f2f6fb;
-  border-radius: 6px;
+  background: var(--dress-bg);
+  color: var(--dress-text);
+  border-radius: var(--radius-chip);
 }
 
 .tips {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--muted);
   margin-top: 6px;
 }
 
 .stamp {
   font-size: 11px;
-  color: #9aa1ab;
+  color: var(--muted);
   margin-top: 8px;
 }
 
 .placeholder-text {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--muted);
   margin-top: 8px;
 }
 
@@ -118,6 +190,9 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  border-bottom: var(--bar-rule);
+  padding-bottom: 5px;
 }
 
 .arrow {
@@ -125,25 +200,39 @@ body {
   background: transparent;
   font-size: 20px;
   cursor: pointer;
-  color: #6b7280;
+  color: var(--muted);
   padding: 0 6px;
   line-height: 1;
 }
 
 .date-text {
+  font-family: var(--font-display);
   font-size: 17px;
   font-weight: 600;
 }
 
-.today-btn {
+.bar-actions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.today-btn,
+.theme-btn {
   font-size: 12px;
-  border: 1px solid #cbd8e8;
-  background: transparent;
-  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-chip);
   padding: 2px 8px;
   cursor: pointer;
-  color: #4a6fa5;
+  color: var(--muted);
+  font-family: var(--font-ui);
+}
+
+.today-btn:hover,
+.theme-btn:hover {
+  background: var(--hover);
 }
 
 .strip {
@@ -158,27 +247,30 @@ body {
   gap: 2px;
   align-items: center;
   padding: 8px 4px;
-  background: #ffffff;
-  border: 1px solid #e3e6ea;
-  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
   cursor: pointer;
   font-size: 12px;
+  color: var(--muted);
+  font-family: var(--font-ui);
 }
 
 .strip-item:hover {
-  border-color: #b9c8dd;
+  background: var(--hover);
 }
 
 .strip-date {
   font-weight: 600;
+  color: var(--text);
 }
 
 .strip-cond {
-  color: #6b7280;
+  color: var(--muted);
 }
 
 .strip-temp {
-  color: #4b5057;
+  color: var(--muted);
 }
 
 .city-picker {
@@ -187,17 +279,18 @@ body {
 }
 
 .city-button {
-  border: 1px solid #e3e6ea;
-  background: #ffffff;
-  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-chip);
   padding: 3px 10px;
   cursor: pointer;
   font-size: 12px;
-  color: #23262b;
+  color: var(--text);
+  font-family: var(--font-ui);
 }
 
 .hint {
-  color: #b4553f;
+  color: var(--badge-text);
   margin-left: 6px;
 }
 
@@ -205,10 +298,10 @@ body {
   position: absolute;
   z-index: 5;
   margin-top: 4px;
-  background: #ffffff;
-  border: 1px solid #e3e6ea;
-  border-radius: 6px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
   min-width: 96px;
 }
 
@@ -221,9 +314,10 @@ body {
   background: transparent;
   cursor: pointer;
   font-size: 13px;
-  color: #23262b;
+  color: var(--text);
+  font-family: var(--font-ui);
 }
 
 .city-item:hover {
-  background: #f4f6f9;
+  background: var(--hover);
 }

@@ -4,7 +4,7 @@ pub mod commands;
 pub mod config;
 pub mod error;
 
-use tauri::Manager;
+use tauri::{Manager, Theme};
 
 use crate::commands::weather::{self, Forecast};
 use crate::error::AppError;
@@ -20,6 +20,31 @@ fn now_secs() -> i64 {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs() as i64)
         .unwrap_or(0)
+}
+
+/// 把主题模式落到原生窗口上：显式指定深浅时强制窗口主题，
+/// 跟随系统时传 None 交还给系统，标题栏才会跟着变。
+pub fn apply_window_theme(app: &tauri::AppHandle, mode: &str) {
+    let theme = match mode {
+        "light" => Some(Theme::Light),
+        "dark" => Some(Theme::Dark),
+        _ => None,
+    };
+    app.set_theme(theme);
+}
+
+#[tauri::command]
+fn set_theme_mode(app: tauri::AppHandle, mode: String) -> Result<config::AppConfig, AppError> {
+    if !config::is_theme_mode(&mode) {
+        return Err(AppError::new("theme_mode_invalid", "未知的主题模式"));
+    }
+    let dir = data_dir(&app)?;
+    let mut cfg = config::read(&dir);
+    cfg.theme = mode;
+    apply_window_theme(&app, &cfg.theme);
+    // 写盘失败不打断界面的切换，主题已经生效
+    let _ = config::write(&dir, &cfg);
+    Ok(cfg)
 }
 
 #[derive(serde::Serialize)]
@@ -106,8 +131,12 @@ async fn locate_by_ip(app: tauri::AppHandle) -> Result<config::AppConfig, AppErr
         return Ok(current);
     }
     let located = commands::geo::locate().await?;
-    let _ = config::write(&dir, &located);
-    Ok(located)
+    let mut next = current;
+    next.city_name = located.city_name;
+    next.lat = located.lat;
+    next.lon = located.lon;
+    let _ = config::write(&dir, &next);
+    Ok(next)
 }
 
 #[tauri::command]
@@ -123,12 +152,21 @@ async fn get_holidays(
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .setup(|app| {
+            let handle = app.handle().clone();
+            if let Ok(dir) = handle.path().app_data_dir() {
+                let cfg = config::read(&dir);
+                apply_window_theme(&handle, &cfg.theme);
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             get_config,
             set_city,
             get_forecast,
             locate_by_ip,
-            get_holidays
+            get_holidays,
+            set_theme_mode
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

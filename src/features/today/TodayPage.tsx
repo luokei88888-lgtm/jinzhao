@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { almanacOf } from "../../lib/almanac";
 import { api, type AppConfig, type Forecast, type HolidayDay } from "../../lib/api";
 import { addDays, formatCn, todayIso, weekdayCn } from "../../lib/date";
+import { applyThemeTo, nextMode, parseThemeMode, type ThemeMode } from "../../lib/theme";
 import { CityPicker } from "../city/CityPicker";
+import { ThemeToggle } from "../theme/ThemeToggle";
 import { AlmanacCard } from "./AlmanacCard";
 import { UpcomingStrip } from "./UpcomingStrip";
 import { WeatherCard } from "./WeatherCard";
@@ -12,6 +14,7 @@ const FALLBACK_CONFIG: AppConfig = {
   lat: 39.9042,
   lon: 116.4074,
   cityLocked: false,
+  theme: "system",
 };
 
 export function TodayPage() {
@@ -22,6 +25,19 @@ export function TodayPage() {
   const [meta, setMeta] = useState<{ fetchedAt: number; stale: boolean } | null>(null);
   const [holidays, setHolidays] = useState<HolidayDay[]>([]);
   const [weatherError, setWeatherError] = useState("");
+  const [themeMode, setThemeMode] = useState<ThemeMode>("system");
+
+  useEffect(() => {
+    const media =
+      typeof window.matchMedia === "function"
+        ? window.matchMedia("(prefers-color-scheme: dark)")
+        : null;
+    const sync = () => applyThemeTo(document.documentElement, themeMode, media?.matches ?? false);
+    sync();
+    if (themeMode !== "system" || !media) return;
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, [themeMode]);
 
   useEffect(() => {
     void (async () => {
@@ -40,6 +56,7 @@ export function TodayPage() {
         }
       }
       setConfig(cfg);
+      setThemeMode(parseThemeMode(cfg.theme));
 
       try {
         const res = await api.getForecast(cfg.lat, cfg.lon);
@@ -79,6 +96,17 @@ export function TodayPage() {
     }
   }
 
+  async function toggleTheme() {
+    const next = nextMode(themeMode);
+    // 先切界面再落盘：写盘失败也不该让界面停在旧主题
+    setThemeMode(next);
+    try {
+      await api.setThemeMode(next);
+    } catch {
+      /* 忽略写盘失败 */
+    }
+  }
+
   return (
     <div className="today">
       <div className="date-bar">
@@ -91,11 +119,14 @@ export function TodayPage() {
         <button type="button" className="arrow" onClick={() => setDate(addDays(date, 1))} aria-label="后一天">
           ›
         </button>
-        {date === today ? null : (
-          <button type="button" className="today-btn" onClick={() => setDate(today)}>
-            回到今天
-          </button>
-        )}
+        <div className="bar-actions">
+          {date === today ? null : (
+            <button type="button" className="today-btn" onClick={() => setDate(today)}>
+              回到今天
+            </button>
+          )}
+          <ThemeToggle mode={themeMode} onToggle={() => void toggleTheme()} />
+        </div>
       </div>
       <CityPicker config={config} onPick={(name, lat, lon) => void pickCity(name, lat, lon)} />
       <AlmanacCard
