@@ -113,3 +113,70 @@ body {
   color: #6b7280;
   margin-top: 8px;
 }
+
+.date-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.arrow {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0 6px;
+  line-height: 1;
+}
+
+.date-text {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.today-btn {
+  margin-left: auto;
+  font-size: 12px;
+  border: 1px solid #cbd8e8;
+  background: transparent;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  color: #4a6fa5;
+}
+
+.strip {
+  display: flex;
+  gap: 8px;
+}
+
+.strip-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  padding: 8px 4px;
+  background: #ffffff;
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.strip-item:hover {
+  border-color: #b9c8dd;
+}
+
+.strip-date {
+  font-weight: 600;
+}
+
+.strip-cond {
+  color: #6b7280;
+}
+
+.strip-temp {
+  color: #4b5057;
+}

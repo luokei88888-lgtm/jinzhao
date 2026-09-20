@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { almanacOf } from "../../lib/almanac";
 import { api, type AppConfig, type Forecast, type HolidayDay } from "../../lib/api";
-import { todayIso } from "../../lib/date";
+import { addDays, formatCn, todayIso, weekdayCn } from "../../lib/date";
 import { AlmanacCard } from "./AlmanacCard";
+import { UpcomingStrip } from "./UpcomingStrip";
 import { WeatherCard } from "./WeatherCard";
 
 const FALLBACK_CONFIG: AppConfig = {
@@ -14,7 +15,7 @@ const FALLBACK_CONFIG: AppConfig = {
 
 export function TodayPage() {
   const today = useMemo(() => todayIso(), []);
-  const [date] = useState(today);
+  const [date, setDate] = useState(today);
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [forecast, setForecast] = useState<Forecast | null>(null);
   const [meta, setMeta] = useState<{ fetchedAt: number; stale: boolean } | null>(null);
@@ -62,6 +63,22 @@ export function TodayPage() {
 
   return (
     <div className="today">
+      <div className="date-bar">
+        <button type="button" className="arrow" onClick={() => setDate(addDays(date, -1))} aria-label="前一天">
+          ‹
+        </button>
+        <span className="date-text">
+          {formatCn(date)} {weekdayCn(date)}
+        </span>
+        <button type="button" className="arrow" onClick={() => setDate(addDays(date, 1))} aria-label="后一天">
+          ›
+        </button>
+        {date === today ? null : (
+          <button type="button" className="today-btn" onClick={() => setDate(today)}>
+            回到今天
+          </button>
+        )}
+      </div>
       <AlmanacCard
         almanac={almanac}
         holiday={
@@ -76,6 +93,7 @@ export function TodayPage() {
         stale={date === today ? meta?.stale : undefined}
         error={weatherError}
       />
+      <UpcomingStrip today={today} days={forecast?.days ?? []} onPick={setDate} />
     </div>
   );
 }
