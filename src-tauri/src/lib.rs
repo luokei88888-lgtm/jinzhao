@@ -111,6 +111,15 @@ async fn locate_by_ip(app: tauri::AppHandle) -> Result<config::AppConfig, AppErr
 }
 
 #[tauri::command]
+async fn get_holidays(
+    app: tauri::AppHandle,
+    year: i32,
+) -> Result<Vec<commands::holiday::HolidayDay>, AppError> {
+    let dir = data_dir(&app)?;
+    Ok(commands::holiday::load(&dir, year).await)
+}
+
+#[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
@@ -124,7 +133,8 @@ pub fn run() {
             get_config,
             set_city,
             get_forecast,
-            locate_by_ip
+            locate_by_ip,
+            get_holidays
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
