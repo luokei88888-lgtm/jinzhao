@@ -99,6 +99,18 @@ async fn get_forecast(
 }
 
 #[tauri::command]
+async fn locate_by_ip(app: tauri::AppHandle) -> Result<config::AppConfig, AppError> {
+    let dir = data_dir(&app)?;
+    let current = config::read(&dir);
+    if current.city_locked {
+        return Ok(current);
+    }
+    let located = commands::geo::locate().await?;
+    let _ = config::write(&dir, &located);
+    Ok(located)
+}
+
+#[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
@@ -111,7 +123,8 @@ pub fn run() {
             greet,
             get_config,
             set_city,
-            get_forecast
+            get_forecast,
+            locate_by_ip
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
