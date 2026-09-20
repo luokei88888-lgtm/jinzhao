@@ -180,3 +180,50 @@ body {
 .strip-temp {
   color: #4b5057;
 }
+
+.city-picker {
+  position: relative;
+  align-self: flex-start;
+}
+
+.city-button {
+  border: 1px solid #e3e6ea;
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 3px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #23262b;
+}
+
+.hint {
+  color: #b4553f;
+  margin-left: 6px;
+}
+
+.city-menu {
+  position: absolute;
+  z-index: 5;
+  margin-top: 4px;
+  background: #ffffff;
+  border: 1px solid #e3e6ea;
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  min-width: 96px;
+}
+
+.city-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  color: #23262b;
+}
+
+.city-item:hover {
+  background: #f4f6f9;
+}

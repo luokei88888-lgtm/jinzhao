@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { almanacOf } from "../../lib/almanac";
 import { api, type AppConfig, type Forecast, type HolidayDay } from "../../lib/api";
 import { addDays, formatCn, todayIso, weekdayCn } from "../../lib/date";
+import { CityPicker } from "../city/CityPicker";
 import { AlmanacCard } from "./AlmanacCard";
 import { UpcomingStrip } from "./UpcomingStrip";
 import { WeatherCard } from "./WeatherCard";
@@ -61,6 +62,23 @@ export function TodayPage() {
   const day = forecast?.days.find((d) => d.date === date);
   const holiday = holidays.find((h) => h.date === date);
 
+  async function pickCity(name: string, lat: number, lon: number) {
+    try {
+      const next = await api.setCity(name, lat, lon);
+      setConfig(next);
+      setWeatherError("");
+      try {
+        const res = await api.getForecast(next.lat, next.lon);
+        setForecast(res.forecast);
+        setMeta({ fetchedAt: res.fetchedAt, stale: res.stale });
+      } catch {
+        setWeatherError("暂时拿不到天气，联网后会自动重试");
+      }
+    } catch {
+      setWeatherError("切换城市失败，请重试");
+    }
+  }
+
   return (
     <div className="today">
       <div className="date-bar">
@@ -79,6 +97,7 @@ export function TodayPage() {
           </button>
         )}
       </div>
+      <CityPicker config={config} onPick={(name, lat, lon) => void pickCity(name, lat, lon)} />
       <AlmanacCard
         almanac={almanac}
         holiday={
