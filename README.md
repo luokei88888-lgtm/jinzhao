@@ -1,7 +1,66 @@
-# Tauri + React + Typescript
+# 今朝
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+一屏看清某一天是什么日子、宜什么忌什么、天气如何、该穿什么。默认落在今天，可以前后翻日。
 
-## Recommended IDE Setup
+Windows 桌面应用，Tauri 2 + React + TypeScript。黄历完全离线计算，天气与节假日需要联网，其余数据都留在本机。
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+## 当前状态
+
+功能已完成，`v0.1.0`，尚未打包安装程序。
+
+- 黄历：农历、干支、节日、节气、宜、忌，由 lunar-typescript 本地计算，断网可用
+- 天气：Open-Meteo，免密钥，一次取回 16 天，含体感温度、降水概率、紫外线、湿度与风速
+- 穿衣建议：按体感温度分档推算，附带给伞、防晒、防风、温差提示
+- 城市：首次启动用 IP 猜一次，可手动切北京或唐山，手选后固定
+- 节假日：法定节假日与调休角标，年度数据首次联网拉取后落盘
+- 翻日：日期栏左右箭头，底部未来三天可直接点选
+
+## 怎么跑
+
+需要 Node.js 18+、Rust stable、Visual Studio 2022 C++ 生成工具（MSVC）。
+
+%%%
+npm install
+npm test                      # 前端单元测试
+cargo test --manifest-path src-tauri/Cargo.toml
+npm run build                 # 类型检查加前端构建
+npm run tauri dev             # 开发模式
+npm run tauri build           # 打包安装程序
+%%%
+
+注意：`npm run tauri dev` 会占用 1420 端口，且要求该端口空闲。
+
+## 数据放在哪
+
+%%%
+%APPDATA%\com.jinzhao.app\config.json          城市与是否已锁定
+%APPDATA%\com.jinzhao.app\weather-cache.json   天气缓存，有效期 30 分钟
+%APPDATA%\com.jinzhao.app\holidays-2026.json   当年节假日表，当年不再联网更新
+%%%
+
+## 验证记录
+
+2026-09-20 在本机完成，分支 feat/jinzhao-v1。
+
+已自动验证：
+
+- 前端 4 个纯函数模块 27 个用例全部通过，覆盖穿衣分档边界（体感 28 度、16 度、温差 10 度）、WMO 代码映射与未知码兜底、日期跨月跨年与闰年、黄历的农历干支与节日节气
+- Rust 侧 15 个用例全部通过，覆盖天气解析（正常、缺字段、空数组）、缓存过期与降级（文件被删、内容损坏、换城市不复用）、节假日解析（含 Cloudflare 校验页）
+- 黄历抽样 20 天与百度日历比对：2026-09-20 百度记「宜 出行、房屋清洁、沐浴、安葬、祭祀」与本工具的「宜 祭祀、出行、沐浴、扫舍、安葬、馀事勿取」逐条对应，属同一黄历体系的不同用词
+- 全年节气覆盖检查：2026 年抽到 24 个节气，数量正确
+- release 版真机运行：界面显示日期栏、城市、黄历卡、天气卡与未来三天条，其中农历八月初十与丁酉日与百度日历一致，节假日角标显示「班 · 中秋节前补班」，天气显示 28 度毛毛雨、更新于 14:33
+- 降级真机验证：删掉天气缓存后重启能自动重新生成 16 天数据；把缓存写成非法 JSON 后重启，程序不崩溃并自动修复缓存
+
+待人工确认（需要断网或改系统设置，无法自动执行）：
+
+- 断网启动：黄历应正常显示，天气区应提示「暂时拿不到天气，联网后会自动重试」，城市按钮应标注「未定位」
+- 把 hosts 里的 api.timor.tech 与 raw.githubusercontent.com 指向 127.0.0.1 后启动：应不显示休班角标，其他一切正常
+- 把系统时间往后调 31 分钟再启动：应重新发起天气请求，而不是直接用缓存
+- 窗口缩放：缩到最小 360x520 时内容不应重叠或截断
+
+## 已知限制
+
+- 天气只有未来 16 天，更远的日期只显示黄历
+- 节假日表依赖第三方接口（timor.tech 与 holiday-cn），官方只发布通知没有 API；接口不可用时该年数据需要手工补录
+- 城市只提供北京与唐山两个预设，自定义城市搜索留到后续版本
+- 黄历的 sect 参数固定为 1，实测取值 1 与 2 结果一致

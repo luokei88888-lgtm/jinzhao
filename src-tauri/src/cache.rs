@@ -63,4 +63,66 @@ mod tests {
     fn future_timestamp_is_not_fresh() {
         assert!(!is_fresh(2000, 1000, CACHE_TTL_SECS));
     }
+
+    fn sample_forecast() -> Forecast {
+        Forecast {
+            current: crate::commands::weather::CurrentWeather {
+                temp: 25.0,
+                feels: 26.0,
+                humidity: 59.0,
+                wind: 10.0,
+                precip: 0.0,
+                code: 1,
+            },
+            days: vec![],
+        }
+    }
+
+    #[test]
+    fn write_then_read_roundtrip() {
+        let dir = std::env::temp_dir().join("jinzhao-cache-roundtrip");
+        let _ = std::fs::remove_dir_all(&dir);
+        let value = CachedForecast {
+            fetched_at: 1000,
+            lat: 39.9,
+            lon: 116.4,
+            forecast: sample_forecast(),
+        };
+        write(&dir, &value).expect("write should succeed");
+        let got = read(&dir, 39.9, 116.4).expect("read should succeed");
+        assert_eq!(got.fetched_at, 1000);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn deleted_cache_reads_as_none() {
+        let dir = std::env::temp_dir().join("jinzhao-cache-missing");
+        let _ = std::fs::remove_dir_all(&dir);
+        assert!(read(&dir, 39.9, 116.4).is_none());
+    }
+
+    #[test]
+    fn malformed_cache_reads_as_none() {
+        let dir = std::env::temp_dir().join("jinzhao-cache-broken");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).expect("temp dir");
+        std::fs::write(dir.join("weather-cache.json"), "not json at all").expect("write broken file");
+        assert!(read(&dir, 39.9, 116.4).is_none());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn cache_for_other_city_is_not_reused() {
+        let dir = std::env::temp_dir().join("jinzhao-cache-othercity");
+        let _ = std::fs::remove_dir_all(&dir);
+        let value = CachedForecast {
+            fetched_at: 1000,
+            lat: 39.9,
+            lon: 116.4,
+            forecast: sample_forecast(),
+        };
+        write(&dir, &value).expect("write should succeed");
+        assert!(read(&dir, 39.63, 118.18).is_none());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 }
