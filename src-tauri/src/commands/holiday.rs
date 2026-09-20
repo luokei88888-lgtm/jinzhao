@@ -43,7 +43,7 @@ struct CnResponse {
     days: Option<Vec<CnDay>>,
 }
 
-pub fn parse_timor(json: &str, _year: i32) -> Vec<HolidayDay> {
+pub fn parse_timor(json: &str) -> Vec<HolidayDay> {
     let parsed: TimorResponse = match serde_json::from_str(json) {
         Ok(v) => v,
         Err(_) => return Vec::new(),
@@ -129,7 +129,7 @@ pub async fn load(dir: &Path, year: i32) -> Vec<HolidayDay> {
     }
 
     if let Ok(text) = get_text(&format!("{}{}", TIMOR_API, year)).await {
-        let days = parse_timor(&text, year);
+        let days = parse_timor(&text);
         if !days.is_empty() {
             let _ = write_local(dir, year, &days);
             return days;
@@ -154,7 +154,7 @@ mod tests {
     #[test]
     fn timor_sample_parses_and_marks_off_days() {
         let json = include_str!("../../../tests/fixtures/holiday-timor.json");
-        let days = parse_timor(json, 2026);
+        let days = parse_timor(json);
         assert!(!days.is_empty());
         let new_year = days
             .iter()
@@ -178,19 +178,19 @@ mod tests {
 
     #[test]
     fn timor_empty_year_returns_empty_vec() {
-        let days = parse_timor(r#"{"code":0,"holiday":{}}"#, 2027);
+        let days = parse_timor(r#"{"code":0,"holiday":{}}"#);
         assert!(days.is_empty());
     }
 
     #[test]
     fn broken_json_returns_empty_vec_not_panic() {
-        assert!(parse_timor("not json", 2026).is_empty());
+        assert!(parse_timor("not json").is_empty());
         assert!(parse_holiday_cn("not json").is_empty());
     }
 
     #[test]
     fn cloudflare_challenge_html_returns_empty_vec() {
         let html = "<!DOCTYPE html><html lang=\"en-US\"><head><title>Just a moment...</title>";
-        assert!(parse_timor(html, 2026).is_empty());
+        assert!(parse_timor(html).is_empty());
     }
 }

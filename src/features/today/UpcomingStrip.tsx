@@ -24,7 +24,7 @@ export function UpcomingStrip({
           <span className="strip-date">
             {weekdayCn(iso)} {Number(iso.slice(8, 10))}
           </span>
-          <span className="strip-cond">{day ? describeWeather(day.code).text : "—"}</span>
+          <span className="strip-cond">{day ? describeWeather(day.code) : "—"}</span>
           <span className="strip-temp">
             {day ? Math.round(day.tempMin) + "~" + Math.round(day.tempMax) + "°" : "暂无预报"}
           </span>

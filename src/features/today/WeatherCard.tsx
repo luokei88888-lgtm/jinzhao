@@ -33,7 +33,7 @@ export function WeatherCard({
     );
   }
 
-  const weather = describeWeather(day.code);
+  const weatherText = describeWeather(day.code);
   const advice = advise({
     feelsMax: day.feelsMax,
     feelsMin: day.feelsMin,
@@ -48,7 +48,7 @@ export function WeatherCard({
       <div className="temp-row">
         <span className="temp">{Math.round(current?.temp ?? day.tempMax)}°</span>
         <span className="cond">
-          {weather.text}
+          {weatherText}
           <br />
           {Math.round(day.tempMin)}~{Math.round(day.tempMax)}° · 体感 {Math.round(day.feelsMin)}~
           {Math.round(day.feelsMax)}°

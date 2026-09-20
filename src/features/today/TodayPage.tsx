@@ -3,6 +3,7 @@ import { almanacOf } from "../../lib/almanac";
 import { api, type AppConfig, type Forecast, type HolidayDay } from "../../lib/api";
 import { addDays, formatCn, todayIso, weekdayCn } from "../../lib/date";
 import { applyThemeTo, nextMode, parseThemeMode, type ThemeMode } from "../../lib/theme";
+import { writeCachedMode } from "../../lib/themeCache";
 import { CityPicker } from "../city/CityPicker";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { AlmanacCard } from "./AlmanacCard";
@@ -56,7 +57,9 @@ export function TodayPage() {
         }
       }
       setConfig(cfg);
-      setThemeMode(parseThemeMode(cfg.theme));
+      const savedMode = parseThemeMode(cfg.theme);
+      setThemeMode(savedMode);
+      writeCachedMode(savedMode);
 
       try {
         const res = await api.getForecast(cfg.lat, cfg.lon);
@@ -100,6 +103,7 @@ export function TodayPage() {
     const next = nextMode(themeMode);
     // 先切界面再落盘：写盘失败也不该让界面停在旧主题
     setThemeMode(next);
+    writeCachedMode(next);
     try {
       await api.setThemeMode(next);
     } catch {
